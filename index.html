@@ -1,0 +1,346 @@
+<!DOCTYPE html>
+<html lang="en" ng-app="misApp">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Monthly Information Statement</title>
+    
+    <!-- Bootstrap and Font Awesome for styling and icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.4.1/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    
+    <!-- AngularJS library -->
+    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.8.2/angular.min.js"></script>
+
+    <style>
+        /* General styling for the application */
+        body {
+            background-color: #f0f2f5;
+            padding-top: 20px;
+            font-family: sans-serif;
+        }
+
+        .content-container {
+            max-width: 1200px;
+            margin: auto;
+            background: #fff;
+            padding: 20px 30px;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+
+        .card.well {
+            background-color: #fdfdfd;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            box-shadow: none;
+        }
+
+        .breadcrumb {
+            background-color: transparent;
+            padding-left: 0;
+        }
+        
+        .btn-primary {
+            background-color: #007bff;
+            border-color: #007bff;
+        }
+
+        .btn-primary:hover {
+            background-color: #0056b3;
+            border-color: #0056b3;
+        }
+        
+        /* Styles for printing the report */
+        @media print {
+            body * {
+                visibility: hidden;
+            }
+            #dvContents, #dvContents * {
+                visibility: visible;
+            }
+            #dvContents {
+                position: absolute;
+                left: 0;
+                top: 0;
+                width: 100%;
+                box-shadow: none;
+                border: none;
+            }
+            @page {
+              size: landscape;
+              margin: 20px;
+            }
+            .content-container {
+                box-shadow: none;
+            }
+        }
+        
+        /* Table and report specific styles */
+        .report-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+            font-size: 12px;
+        }
+        .report-table th, .report-table td {
+            border: 1px solid #ccc;
+            padding: 6px 8px;
+            text-align: left;
+        }
+        .report-table thead th {
+            background-color: #f2f2f2;
+            font-weight: bold;
+            text-align: center;
+            vertical-align: middle;
+        }
+        .report-table td.number, .report-table th.number {
+            text-align: right;
+        }
+        .report-table .main-header-row {
+            background-color: #e9ecef;
+            font-weight: bold;
+        }
+        .report-table .sub-row td:first-child {
+            padding-left: 30px;
+        }
+         .report-table .total-row {
+            font-weight: bold;
+            background-color: #f8f9fa;
+        }
+        .report-header h4, .report-header h5 {
+            margin: 5px 0;
+        }
+        .report-header .info-grid {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 15px;
+            padding: 0 10px;
+        }
+    </style>
+</head>
+<body ng-controller="MISReportController">
+
+    <div class="content-container">
+        <ul class="breadcrumb">
+            <li><a href="#">Reports</a></li>
+            <li class="active">Monthly Information Statement</li>
+        </ul>
+
+        <div class="card well" style="padding: 20px 25px;">
+            <div class="row">
+                <div class="alert alert-danger" ng-if="errorMessage" style="margin: 0 15px 15px 15px;">
+                    {{ errorMessage }}
+                </div>
+            </div>
+            <div class="row">
+                <div class="form-group col-sm-4">
+                    <label class="control-label">Township / Region</label>
+                    <select class="form-control" ng-model="searchParams.location">
+                        <option value="Kyaukpadaung">Kyaukpadaung</option>
+                        <option value="KyaukSe">KyaukSe</option>
+                        <option value="SintKaing">SintKaing</option>
+                        <option value="Mandalay Region">Mandalay Region</option>
+                    </select>
+                </div>
+                <div class="form-group col-sm-4">
+                    <label class="control-label">Report Month</label>
+                    <input type="month" class="form-control" ng-model="searchParams.month" />
+                </div>
+                <div class="form-group col-sm-4 text-right" style="padding-top: 25px;">
+                    <button class="btn btn-primary" ng-click="search()">
+                        View Report <i class="fa fa-search"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- This is the printable section -->
+        <div style="margin-top: 20px;" class="card well" id="dvContents" data-ng-show="report">
+            <div class="report-header text-center">
+                <h4>KANBAWZAX-MICROFINANCE (KBX-MF) COMPANY LIMITED</h4>
+                <h5>Monthly Information Statement</h5>
+                <div class="info-grid">
+                    <span><strong>{{ report.reportInfo.locationType }}:</strong> {{ report.reportInfo.location }}</span>
+                    <span><strong>Report Month:</strong> {{ report.reportInfo.reportMonth }}</span>
+                </div>
+            </div>
+            
+            <table class="report-table">
+                <thead>
+                    <tr>
+                        <th rowspan="2" style="width: 5%;">No</th>
+                        <th rowspan="2" style="width: 35%;">Particular</th>
+                        <th rowspan="2" style="width: 5%;">Ref:</th>
+                        <th rowspan="2" style="width: 5%;">Units</th>
+                        <th rowspan="2" class="number">Previous Month</th>
+                        <th colspan="2">During Month</th>
+                        <th rowspan="2" class="number">This Month</th>
+                    </tr>
+                    <tr>
+                        <th class="number">Increased</th>
+                        <th class="number">Decreased</th>
+                    </tr>
+                </thead>            
+                <tbody>
+                    <tr ng-repeat="row in report.reportData track by $index" ng-class="{'main-header-row': row.isHeader, 'sub-row': row.isSub, 'total-row': row.isTotal}">
+                        <td ng-if="!row.isHeader" class="text-center">{{ row.no }}</td>
+                        <td ng-if="!row.isHeader">{{ row.particular }}</td>
+                        <td ng-if="row.isHeader" colspan="8">{{ row.particular }}</td>
+                        <td ng-if="!row.isHeader" class="text-center">{{ row.ref }}</td>
+                        <td ng-if="!row.isHeader" class="text-center">{{ row.units }}</td>
+                        <td ng-if="!row.isHeader" class="number">{{ row.previousMonth | number:0 }}</td>
+                        <td ng-if="!row.isHeader" class="number">{{ row.increased | number:0 }}</td>
+                        <td ng-if="!row.isHeader" class="number">{{ row.decreased | number:0 }}</td>
+                        <td ng-if="!row.isHeader" class="number">{{ row.thisMonth | number:0 }}</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div style="text-align: right; margin-top: 20px;" data-ng-show="report">
+            <button class="btn btn-default" ng-click="cancel()" style="width: 100px; margin-right: 10px;">
+                <i class="fa fa-arrow-left"></i> &nbsp; Back
+            </button>
+            <button class="btn btn-primary" ng-click="printReport()" style="width: 100px;">
+                <i class="fa fa-print"></i> &nbsp; Print
+            </button>
+        </div>
+    </div>
+
+    <script>
+        var app = angular.module('misApp', []);
+        app.controller('MISReportController', function($scope, $timeout) {
+            
+            // --- INITIAL SCOPE SETUP ---
+            $scope.searchParams = {
+                location: 'Kyaukpadaung',
+                month: new Date('2025-03-01')
+            };
+            $scope.report = null;
+            $scope.errorMessage = "";
+            
+            // --- MOCK DATA (based on Kyaukpadaung.csv) ---
+            const mockReportData = {
+                reportInfo: {
+                    company: "KANBAWZAX-MICROFINANCE (KBX-MF) COMPANY LIMITED",
+                    title: "Monthly Information Statement",
+                    locationType: "Township and Branch Name",
+                    location: "Kyaukpadaung, Branch-1",
+                    reportMonth: "2025-03-31"
+                },
+                reportData: [
+                    // Outreach and Coverage
+                    { isHeader: true, particular: "Outreach and coverage" },
+                    { no: '1', particular: 'No. of Township', ref: '1.1', units: 'TSP', previousMonth: 2, increased: 0, decreased: 0, thisMonth: 2 },
+                    { no: '2', particular: 'No. of Town', ref: '2.1', units: 'TS', previousMonth: 0, increased: 0, decreased: 0, thisMonth: 0 },
+                    { no: '3', particular: 'No. of Branch', ref: '3.1', units: 'B', previousMonth: 1, increased: 0, decreased: 0, thisMonth: 1 },
+                    { no: '4', particular: 'Village Tracts Covered', ref: '4.1', units: 'VT', previousMonth: 76, increased: 0, decreased: 0, thisMonth: 76 },
+                    { no: '5', particular: 'Villages covered', ref: '5.1', units: 'VC', previousMonth: 158, increased: 1, decreased: 0, thisMonth: 159 },
+                    { no: '6', particular: 'No. of Urban (No. of Wards)', ref: '6.1', units: 'UB', previousMonth: 14, increased: 0, decreased: 0, thisMonth: 14 },
+                    { no: '7', particular: 'Center formed', ref: '7.1', units: 'CF', previousMonth: 145, increased: 1, decreased: 0, thisMonth: 146 },
+                    { no: '8', particular: 'Group formed', ref: '8.1', units: 'GF', previousMonth: 817, increased: 11, decreased: 0, thisMonth: 828 },
+                    { no: '9', particular: 'Total Clients (Beginning of the project data)' },
+                    { isSub: true, no: '', particular: 'Male', ref: '9.1', units: '', previousMonth: 112, increased: 3, decreased: 0, thisMonth: 115 },
+                    { isSub: true, no: '', particular: 'Female', ref: '9.2', units: '', previousMonth: 4643, increased: 64, decreased: 0, thisMonth: 4707 },
+                    { isSub: true, isTotal: true, no: '', particular: 'Total', ref: '', units: '', previousMonth: 4755, increased: 67, decreased: 0, thisMonth: 4822 },
+                    { no: '10', particular: 'Drop-out' },
+                    { isSub: true, no: '', particular: 'Male', ref: '10.1', units: '', previousMonth: 3, increased: 0, decreased: 0, thisMonth: 3 },
+                    { isSub: true, no: '', particular: 'Female', ref: '10.2', units: '', previousMonth: 42, increased: 0, decreased: 0, thisMonth: 42 },
+                    { isSub: true, isTotal: true, no: '', particular: 'Total', ref: '', units: '', previousMonth: 45, increased: 0, decreased: 0, thisMonth: 45 },
+                    { no: '11', particular: 'Active clients (at the end of the month)' },
+                    { isSub: true, no: '', particular: 'Male', ref: '11.1', units: '', previousMonth: 109, increased: 3, decreased: 0, thisMonth: 112 },
+                    { isSub: true, no: '', particular: 'Female', ref: '11.2', units: '', previousMonth: 4601, increased: 64, decreased: 0, thisMonth: 4665 },
+                    { isSub: true, isTotal: true, no: '', particular: 'Total', ref: '', units: '', previousMonth: 4710, increased: 67, decreased: 0, thisMonth: 4777 },
+                    
+                    // Loan Disbursement
+                    { isHeader: true, particular: "Loan Disbursment (During the Month)"},
+                    { no: '12', particular: 'General Loan', ref: '12.1'},
+                    { isSub: true, no: '', particular: 'No.', ref: '12.1.1', units: 'No.', previousMonth: 0, increased: 256, decreased: 0, thisMonth: 256 },
+                    { isSub: true, no: '', particular: 'Amt;', ref: '12.1.2', units: 'Amt;', previousMonth: 0, increased: 311300000, decreased: 0, thisMonth: 311300000 },
+                    
+                    // Loan Outstanding
+                    { isHeader: true, particular: "Loan Outstanding" },
+                    { no: '17', particular: 'General Loan', ref: '17.1' },
+                    { isSub: true, no: '', particular: 'No.', ref: '17.1.1', units: 'No.', previousMonth: 1162, increased: 256, decreased: 116, thisMonth: 1302 },
+                    { isSub: true, no: '', particular: 'Amt;', ref: '17.1.2', units: 'Amt;', previousMonth: 785750000, increased: 311300000, decreased: 128362500, thisMonth: 968687500 },
+                    { isSub: true, isTotal: true, no: '', particular: 'Total', ref: '', units: '', previousMonth: 1162, increased: 256, decreased: 116, thisMonth: 1302 },
+                    { isSub: true, isTotal: true, no: '', particular: 'Total Amt;', ref: '', units: '', previousMonth: 785750000, increased: 311300000, decreased: 128362500, thisMonth: 968687500 },
+
+                    // Cumulative Loan Disbursement
+                    { isHeader: true, particular: "Total Loan Disbursed (Cumulative)"},
+                    { no: '22', particular: 'General Loan', ref: '22.1' },
+                    { isSub: true, no: '', particular: 'No.', ref: '22.1.1', units: 'No.', previousMonth: 8149, increased: 256, decreased: 0, thisMonth: 8405 },
+                    { isSub: true, no: '', particular: 'Amt;', ref: '22.1.2', units: 'Amt;', previousMonth: 5983000000, increased: 311300000, decreased: 0, thisMonth: 6294300000 },
+                    { isSub: true, isTotal: true, no: '', particular: 'Total No.', ref: '', units: 'No.', previousMonth: 8149, increased: 256, decreased: 0, thisMonth: 8405 },
+                    { isSub: true, isTotal: true, no: '', particular: 'Total Amt;', ref: '', units: 'Amt;', previousMonth: 5983000000, increased: 311300000, decreased: 0, thisMonth: 6294300000 },
+
+                    // Saving
+                    { isHeader: true, particular: "Saving"},
+                    { no: '23', particular: 'Saving Deposit'},
+                    { isSub: true, no: '', particular: 'Compulsory', ref: '23.1.1', units: 'Amt;', previousMonth: 305894755, increased: 44333777, decreased: 0, thisMonth: 350228532 },
+                    { isSub: true, isTotal: true, no: '', particular: 'Total', ref: '', units: 'Amt;', previousMonth: 305894755, increased: 44333777, decreased: 0, thisMonth: 350228532 },
+                    { no: '24', particular: 'Saving Withdrawl'},
+                    { isSub: true, no: '', particular: 'Compulsory', ref: '24.1.1', units: 'Amt;', previousMonth: 4742643, increased: 1294220, decreased: 0, thisMonth: 6036863 },
+                    { isSub: true, isTotal: true, no: '', particular: 'Total', ref: '', units: 'Amt;', previousMonth: 4742643, increased: 1294220, decreased: 0, thisMonth: 6036863 },
+                    { no: '25', particular: 'Saving Balance'},
+                    { isSub: true, no: '', particular: 'Compulsory', ref: '25.1.1', units: 'Amt;', previousMonth: 301152112, increased: 44333777, decreased: 1294220, thisMonth: 344191669 },
+                    { isSub: true, isTotal: true, no: '', particular: 'Total', ref: '', units: 'Amt;', previousMonth: 301152112, increased: 44333777, decreased: 1294220, thisMonth: 344191669 },
+
+                    // Staff Position
+                    { isHeader: true, particular: "Staff Position" },
+                    { no: '26', particular: 'Total Staff' },
+                    { isSub: true, no: '', particular: 'Male', ref: '26.1', units: '', previousMonth: 16, increased: 0, decreased: 0, thisMonth: 16 },
+                    { isSub: true, no: '', particular: 'Female', ref: '26.2', units: '', previousMonth: 5, increased: 0, decreased: 0, thisMonth: 5 },
+                    { isSub: true, isTotal: true, no: '', particular: 'Total', ref: '', units: '', previousMonth: 21, increased: 0, decreased: 0, thisMonth: 21 },
+                    
+                    // PAR
+                    { isHeader: true, particular: "PAR" },
+                    { no: '27', particular: 'Portfolio At Risk (PAR) > 30 days', ref: '', units: '%', previousMonth: 0.05, increased: 0, decreased: 0, thisMonth: 0.05 },
+                    { no: '28', particular: 'Portfolio At Risk (PAR) > 90 days', ref: '', units: '%', previousMonth: 0.03, increased: 0, decreased: 0, thisMonth: 0.03 },
+                ]
+            };
+            
+            // --- CONTROLLER FUNCTIONS ---
+            $scope.search = function() {
+                $scope.errorMessage = "";
+                $scope.report = null; 
+
+                if (!$scope.searchParams.location || !$scope.searchParams.month) {
+                    $scope.errorMessage = "Please select a location and a report month.";
+                    return;
+                }
+                
+                console.log("Fetching report for:", $scope.searchParams.location, "for month:", $scope.searchParams.month);
+                
+                // Simulate an API call with a short delay
+                $timeout(function() {
+                    // In a real app, you would fetch different data based on the location.
+                    // Here, we'll just update the location title in the mock data.
+                    mockReportData.reportInfo.location = $scope.searchParams.location;
+                    if($scope.searchParams.location === 'Mandalay Region'){
+                        mockReportData.reportInfo.locationType = "Region Name";
+                    } else {
+                        mockReportData.reportInfo.locationType = "Township and Branch Name";
+                    }
+
+                    $scope.report = mockReportData;
+                    console.log("Report data loaded.");
+                }, 300);
+            };
+
+            $scope.cancel = function() {
+                $scope.report = null;
+                $scope.errorMessage = "";
+                console.log("Cancel button clicked, report cleared.");
+            };
+
+            $scope.printReport = function() {
+                console.log("Printing report...");
+                window.print();
+            };
+        });
+    </script>
+
+</body>
+</html>
