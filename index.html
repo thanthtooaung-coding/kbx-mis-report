@@ -5,11 +5,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Monthly Information Statement</title>
     
-    <!-- Bootstrap and Font Awesome for styling and icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.4.1/css/bootstrap.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
     
-    <!-- AngularJS library -->
     <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.8.2/angular.min.js"></script>
 
     <style>
@@ -17,7 +15,7 @@
         body {
             background-color: #f0f2f5;
             padding-top: 20px;
-            font-family: sans-serif;
+            font-family: Arial, sans-serif;
         }
 
         .content-container {
@@ -76,46 +74,125 @@
             }
         }
         
-        /* Table and report specific styles */
+        /* Updated table styles to match reference design */
         .report-table {
             width: 100%;
             border-collapse: collapse;
             margin-top: 20px;
-            font-size: 12px;
+            font-size: 11px;
+            font-family: Arial, sans-serif;
         }
+        
         .report-table th, .report-table td {
-            border: 1px solid #ccc;
-            padding: 6px 8px;
+            border: 1px solid #000;
+            padding: 4px 6px;
             text-align: left;
+            vertical-align: middle;
         }
+        
         .report-table thead th {
-            background-color: #f2f2f2;
+            background-color: #f8f9fa;
             font-weight: bold;
             text-align: center;
             vertical-align: middle;
+            font-size: 10px;
         }
+        
         .report-table td.number, .report-table th.number {
             text-align: right;
         }
+        
+        /* Enhanced header row styling */
         .report-table .main-header-row {
             background-color: #e9ecef;
             font-weight: bold;
         }
-        .report-table .sub-row td:first-child {
-            padding-left: 30px;
+        
+        .report-table .main-header-row td {
+            font-weight: bold;
+            background-color: #e9ecef;
+            text-align: center;
+            padding: 6px;
         }
-         .report-table .total-row {
+        
+        /* Sub-row indentation and styling */
+        .report-table .sub-row td:first-child {
+            padding-left: 20px;
+        }
+        
+        .report-table .sub-row.total-row {
             font-weight: bold;
             background-color: #f8f9fa;
         }
-        .report-header h4, .report-header h5 {
-            margin: 5px 0;
+        
+        .report-table .total-row {
+            font-weight: bold;
+            background-color: #f8f9fa;
         }
+        
+        /* Report header styling */
+        .report-header {
+            text-align: center;
+            margin-bottom: 20px;
+            border-bottom: 2px solid #000;
+            padding-bottom: 15px;
+        }
+        
+        .report-header h4 {
+            margin: 5px 0;
+            font-weight: bold;
+            font-size: 14px;
+        }
+        
+        .report-header h5 {
+            margin: 5px 0;
+            font-weight: bold;
+            font-size: 12px;
+        }
+        
         .report-header .info-grid {
             display: flex;
             justify-content: space-between;
             margin-top: 15px;
             padding: 0 10px;
+            font-size: 11px;
+            font-weight: bold;
+        }
+        
+        /* Added signature section styling */
+        .signature-section {
+            margin-top: 40px;
+            width: 100%;
+        }
+        
+        .signature-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 11px;
+        }
+        
+        .signature-table td {
+            border: 1px solid #000;
+            padding: 8px;
+            text-align: center;
+            vertical-align: middle;
+            height: 60px;
+        }
+        
+        .signature-table .signature-header {
+            background-color: #f8f9fa;
+            font-weight: bold;
+            height: 30px;
+        }
+        
+        .signature-table .signature-number {
+            font-weight: bold;
+            color: #d32f2f;
+        }
+        
+        .signature-table .signature-title {
+            font-weight: bold;
+            color: #1976d2;
         }
     </style>
 </head>
@@ -137,10 +214,10 @@
                 <div class="form-group col-sm-4">
                     <label class="control-label">Township / Region</label>
                     <select class="form-control" ng-model="searchParams.location">
+                        <option value="Mandalay Region">Mandalay Region</option>
                         <option value="Kyaukpadaung">Kyaukpadaung</option>
                         <option value="KyaukSe">KyaukSe</option>
                         <option value="SintKaing">SintKaing</option>
-                        <option value="Mandalay Region">Mandalay Region</option>
                     </select>
                 </div>
                 <div class="form-group col-sm-4">
@@ -155,11 +232,10 @@
             </div>
         </div>
 
-        <!-- This is the printable section -->
         <div style="margin-top: 20px;" class="card well" id="dvContents" data-ng-show="report">
-            <div class="report-header text-center">
-                <h4>KANBAWZAX-MICROFINANCE (KBX-MF) COMPANY LIMITED</h4>
-                <h5>Monthly Information Statement</h5>
+            <div class="report-header">
+                <h4>{{ report.reportInfo.company }}</h4>
+                <h5>{{ report.reportInfo.title }}</h5>
                 <div class="info-grid">
                     <span><strong>{{ report.reportInfo.locationType }}:</strong> {{ report.reportInfo.location }}</span>
                     <span><strong>Report Month:</strong> {{ report.reportInfo.reportMonth }}</span>
@@ -185,17 +261,44 @@
                 <tbody>
                     <tr ng-repeat="row in report.reportData track by $index" ng-class="{'main-header-row': row.isHeader, 'sub-row': row.isSub, 'total-row': row.isTotal}">
                         <td ng-if="!row.isHeader" class="text-center">{{ row.no }}</td>
-                        <td ng-if="!row.isHeader">{{ row.particular }}</td>
+                        <td ng-if="!row.isHeader" style="white-space: pre-line;">{{ row.particular }}</td>
                         <td ng-if="row.isHeader" colspan="8">{{ row.particular }}</td>
                         <td ng-if="!row.isHeader" class="text-center">{{ row.ref }}</td>
                         <td ng-if="!row.isHeader" class="text-center">{{ row.units }}</td>
-                        <td ng-if="!row.isHeader" class="number">{{ row.previousMonth | number:0 }}</td>
-                        <td ng-if="!row.isHeader" class="number">{{ row.increased | number:0 }}</td>
-                        <td ng-if="!row.isHeader" class="number">{{ row.decreased | number:0 }}</td>
-                        <td ng-if="!row.isHeader" class="number">{{ row.thisMonth | number:0 }}</td>
+                        <td ng-if="!row.isHeader" class="number">{{ row.previousMonth | number: (row.units === '%' ? 2 : 0) }}</td>
+                        <td ng-if="!row.isHeader" class="number">{{ row.increased | number: (row.units === '%' ? 2 : 0) }}</td>
+                        <td ng-if="!row.isHeader" class="number">{{ row.decreased | number: (row.units === '%' ? 2 : 0) }}</td>
+                        <td ng-if="!row.isHeader" class="number">{{ row.thisMonth | number: (row.units === '%' ? 2 : 0) }}</td>
                     </tr>
                 </tbody>
             </table>
+            
+            <div class="signature-section">
+                <table class="signature-table">
+                    <tr>
+                        <td class="signature-header">Prepared by</td>
+                        <td class="signature-header">Checked By;</td>
+                        <td class="signature-header">Approved By</td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <div class="signature-number">0</div>
+                            <div style="margin-top: 20px;"></div>
+                            <div class="signature-title">Admin & Finance Officer</div>
+                        </td>
+                        <td>
+                            <div class="signature-number">0</div>
+                            <div style="margin-top: 20px;"></div>
+                            <div class="signature-title">Asst; Branch Manager</div>
+                        </td>
+                        <td>
+                            <div style="margin-top: 20px;">-</div>
+                            <div style="margin-top: 20px;"></div>
+                            <div class="signature-title">Branch Manager</div>
+                        </td>
+                    </tr>
+                </table>
+            </div>
         </div>
 
         <div style="text-align: right; margin-top: 20px;" data-ng-show="report">
@@ -214,90 +317,151 @@
             
             // --- INITIAL SCOPE SETUP ---
             $scope.searchParams = {
-                location: 'Kyaukpadaung',
+                location: 'Mandalay Region',
                 month: new Date('2025-03-01')
             };
             $scope.report = null;
             $scope.errorMessage = "";
             
-            // --- MOCK DATA (based on Kyaukpadaung.csv) ---
+            // --- MOCK DATA (based on Mandalay Region.csv) ---
+            // This data now correctly reflects the provided CSV file.
             const mockReportData = {
                 reportInfo: {
                     company: "KANBAWZAX-MICROFINANCE (KBX-MF) COMPANY LIMITED",
                     title: "Monthly Information Statement",
-                    locationType: "Township and Branch Name",
-                    location: "Kyaukpadaung, Branch-1",
+                    locationType: "Region Name",
+                    location: "Mandalay",
                     reportMonth: "2025-03-31"
                 },
                 reportData: [
-                    // Outreach and Coverage
                     { isHeader: true, particular: "Outreach and coverage" },
-                    { no: '1', particular: 'No. of Township', ref: '1.1', units: 'TSP', previousMonth: 2, increased: 0, decreased: 0, thisMonth: 2 },
+                    { no: '1', particular: 'No. of Township', ref: '1.1', units: 'TSP', previousMonth: 7, increased: 0, decreased: 0, thisMonth: 7 },
                     { no: '2', particular: 'No. of Town', ref: '2.1', units: 'TS', previousMonth: 0, increased: 0, decreased: 0, thisMonth: 0 },
-                    { no: '3', particular: 'No. of Branch', ref: '3.1', units: 'B', previousMonth: 1, increased: 0, decreased: 0, thisMonth: 1 },
-                    { no: '4', particular: 'Village Tracts Covered', ref: '4.1', units: 'VT', previousMonth: 76, increased: 0, decreased: 0, thisMonth: 76 },
-                    { no: '5', particular: 'Villages covered', ref: '5.1', units: 'VC', previousMonth: 158, increased: 1, decreased: 0, thisMonth: 159 },
-                    { no: '6', particular: 'No. of Urban (No. of Wards)', ref: '6.1', units: 'UB', previousMonth: 14, increased: 0, decreased: 0, thisMonth: 14 },
-                    { no: '7', particular: 'Center formed', ref: '7.1', units: 'CF', previousMonth: 145, increased: 1, decreased: 0, thisMonth: 146 },
-                    { no: '8', particular: 'Group formed', ref: '8.1', units: 'GF', previousMonth: 817, increased: 11, decreased: 0, thisMonth: 828 },
-                    { no: '9', particular: 'Total Clients (Beginning of the project data)' },
-                    { isSub: true, no: '', particular: 'Male', ref: '9.1', units: '', previousMonth: 112, increased: 3, decreased: 0, thisMonth: 115 },
-                    { isSub: true, no: '', particular: 'Female', ref: '9.2', units: '', previousMonth: 4643, increased: 64, decreased: 0, thisMonth: 4707 },
-                    { isSub: true, isTotal: true, no: '', particular: 'Total', ref: '', units: '', previousMonth: 4755, increased: 67, decreased: 0, thisMonth: 4822 },
+                    { no: '3', particular: 'No. of Branch', ref: '3.1', units: 'B', previousMonth: 3, increased: 0, decreased: 0, thisMonth: 3 },
+                    { no: '4', particular: 'Village Tracts Covered', ref: '4.1', units: 'VT', previousMonth: 176, increased: 1, decreased: 0, thisMonth: 177 },
+                    { no: '5', particular: 'Villages covered', ref: '5.1', units: 'VC', previousMonth: 338, increased: 2, decreased: 0, thisMonth: 340 },
+                    { no: '6', particular: 'No. of Urban (No. of Wards)', ref: '6.1', units: 'UB', previousMonth: 33, increased: 0, decreased: 0, thisMonth: 33 },
+                    { no: '7', particular: 'Center formed', ref: '7.1', units: 'CF', previousMonth: 394, increased: 1, decreased: 15, thisMonth: 380 },
+                    { no: '8', particular: 'Group formed', ref: '8.1', units: 'GF', previousMonth: 3367, increased: 35, decreased: 1078, thisMonth: 2324 },
+                    { no: '9', particular: 'Total Clients (Beginning of the project data)\n(Anyone recognized through group recognition test)' },
+                    { isSub: true, no: '', particular: 'Male', ref: '9.1', units: 'No.', previousMonth: 234, increased: 5, decreased: 0, thisMonth: 239 },
+                    { isSub: true, no: '', particular: 'Female', ref: '9.2', units: 'No.', previousMonth: 21213, increased: 235, decreased: 0, thisMonth: 21448 },
+                    { isSub: true, isTotal: true, no: '', particular: 'Total', ref: '', units: 'No.', previousMonth: 21447, increased: 240, decreased: 0, thisMonth: 21687 },
                     { no: '10', particular: 'Drop-out' },
-                    { isSub: true, no: '', particular: 'Male', ref: '10.1', units: '', previousMonth: 3, increased: 0, decreased: 0, thisMonth: 3 },
-                    { isSub: true, no: '', particular: 'Female', ref: '10.2', units: '', previousMonth: 42, increased: 0, decreased: 0, thisMonth: 42 },
-                    { isSub: true, isTotal: true, no: '', particular: 'Total', ref: '', units: '', previousMonth: 45, increased: 0, decreased: 0, thisMonth: 45 },
-                    { no: '11', particular: 'Active clients (at the end of the month)' },
-                    { isSub: true, no: '', particular: 'Male', ref: '11.1', units: '', previousMonth: 109, increased: 3, decreased: 0, thisMonth: 112 },
-                    { isSub: true, no: '', particular: 'Female', ref: '11.2', units: '', previousMonth: 4601, increased: 64, decreased: 0, thisMonth: 4665 },
-                    { isSub: true, isTotal: true, no: '', particular: 'Total', ref: '', units: '', previousMonth: 4710, increased: 67, decreased: 0, thisMonth: 4777 },
-                    
-                    // Loan Disbursement
-                    { isHeader: true, particular: "Loan Disbursment (During the Month)"},
-                    { no: '12', particular: 'General Loan', ref: '12.1'},
-                    { isSub: true, no: '', particular: 'No.', ref: '12.1.1', units: 'No.', previousMonth: 0, increased: 256, decreased: 0, thisMonth: 256 },
-                    { isSub: true, no: '', particular: 'Amt;', ref: '12.1.2', units: 'Amt;', previousMonth: 0, increased: 311300000, decreased: 0, thisMonth: 311300000 },
-                    
-                    // Loan Outstanding
-                    { isHeader: true, particular: "Loan Outstanding" },
-                    { no: '17', particular: 'General Loan', ref: '17.1' },
-                    { isSub: true, no: '', particular: 'No.', ref: '17.1.1', units: 'No.', previousMonth: 1162, increased: 256, decreased: 116, thisMonth: 1302 },
-                    { isSub: true, no: '', particular: 'Amt;', ref: '17.1.2', units: 'Amt;', previousMonth: 785750000, increased: 311300000, decreased: 128362500, thisMonth: 968687500 },
-                    { isSub: true, isTotal: true, no: '', particular: 'Total', ref: '', units: '', previousMonth: 1162, increased: 256, decreased: 116, thisMonth: 1302 },
-                    { isSub: true, isTotal: true, no: '', particular: 'Total Amt;', ref: '', units: '', previousMonth: 785750000, increased: 311300000, decreased: 128362500, thisMonth: 968687500 },
+                    { isSub: true, no: '', particular: 'Male', ref: '10.1', units: 'No.', previousMonth: 45, increased: 1, decreased: 0, thisMonth: 46 },
+                    { isSub: true, no: '', particular: 'Female', ref: '10.2', units: 'No.', previousMonth: 10076, increased: 77, decreased: 0, thisMonth: 10153 },
+                    { isSub: true, isTotal: true, no: '', particular: 'Total', ref: '', units: 'No.', previousMonth: 10121, increased: 78, decreased: 0, thisMonth: 10199 },
+                    { no: '11', particular: 'Active Clients' },
+                    { isSub: true, no: '', particular: 'Male', ref: '11.1', units: 'No.', previousMonth: 189, increased: 5, decreased: 1, thisMonth: 193 },
+                    { isSub: true, no: '', particular: 'Female', ref: '11.2', units: 'No.', previousMonth: 11137, increased: 235, decreased: 77, thisMonth: 11295 },
+                    { isSub: true, isTotal: true, no: '', particular: 'Total', ref: '', units: 'No.', previousMonth: 11326, increased: 240, decreased: 78, thisMonth: 11488 },
+                    { no: '12', particular: 'Waiting Clients (Waiting Disbursemsnt & Recognized Test Completed )' },
+                    { isSub: true, no: '', particular: 'Male', ref: '12.1', units: 'No.', previousMonth: 4, increased: 4, decreased: 4, thisMonth: 4 },
+                    { isSub: true, no: '', particular: 'Female', ref: '12.2', units: 'No.', previousMonth: 185, increased: 171, decreased: 157, thisMonth: 199 },
+                    { isSub: true, isTotal: true, no: '', particular: 'Total', ref: '', units: 'No.', previousMonth: 189, increased: 175, decreased: 161, thisMonth: 203 },
+                    { no: '13', particular: 'Waiting Borrowers ( Waiting for next Loan )' },
+                    { isSub: true, no: '', particular: 'Male', ref: '13.1', units: 'No.', previousMonth: 14, increased: 5, decreased: 2, thisMonth: 17 },
+                    { isSub: true, no: '', particular: 'Female', ref: '13.2', units: 'No.', previousMonth: 826, increased: 146, decreased: 113, thisMonth: 859 },
+                    { isSub: true, isTotal: true, no: '', particular: 'Total', ref: '', units: 'No.', previousMonth: 840, increased: 151, decreased: 115, thisMonth: 876 },
+                    { no: '14', particular: 'Active borrowers' },
+                    { isSub: true, no: '14.1', particular: 'Individual Loan' },
+                    { isSub: true, no: '', particular: '  Male', ref: '14.1.1', units: 'No.', previousMonth: 171, increased: 14, decreased: 13, thisMonth: 172 },
+                    { isSub: true, no: '', particular: '  Female', ref: '14.1.2', units: 'No.', previousMonth: 467, increased: 35, decreased: 32, thisMonth: 470 },
+                    { isSub: true, isTotal: true, no: '', particular: '  Total', ref: '', units: 'No.', previousMonth: 638, increased: 49, decreased: 45, thisMonth: 642 },
+                    { isSub: true, no: '14.2', particular: 'Group Loan' },
+                    { isSub: true, no: '', particular: '  Male', ref: '14.2.1', units: 'No.', previousMonth: 0, increased: 0, decreased: 0, thisMonth: 0 },
+                    { isSub: true, no: '', particular: '  Female', ref: '14.2.2', units: 'No.', previousMonth: 9659, increased: 407, decreased: 299, thisMonth: 9767 },
+                    { isSub: true, isTotal: true, no: '', particular: '  Total', ref: '', units: 'No.', previousMonth: 9659, increased: 407, decreased: 299, thisMonth: 9767 },
+                    { isSub: true, isTotal: true, no: '', particular: 'Total Active Borrowers', ref: '', units: 'No.', previousMonth: 10297, increased: 456, decreased: 344, thisMonth: 10409 },
 
-                    // Cumulative Loan Disbursement
-                    { isHeader: true, particular: "Total Loan Disbursed (Cumulative)"},
-                    { no: '22', particular: 'General Loan', ref: '22.1' },
-                    { isSub: true, no: '', particular: 'No.', ref: '22.1.1', units: 'No.', previousMonth: 8149, increased: 256, decreased: 0, thisMonth: 8405 },
-                    { isSub: true, no: '', particular: 'Amt;', ref: '22.1.2', units: 'Amt;', previousMonth: 5983000000, increased: 311300000, decreased: 0, thisMonth: 6294300000 },
-                    { isSub: true, isTotal: true, no: '', particular: 'Total No.', ref: '', units: 'No.', previousMonth: 8149, increased: 256, decreased: 0, thisMonth: 8405 },
-                    { isSub: true, isTotal: true, no: '', particular: 'Total Amt;', ref: '', units: 'Amt;', previousMonth: 5983000000, increased: 311300000, decreased: 0, thisMonth: 6294300000 },
+                    { isHeader: true, particular: "Loan Disbursement Information" },
+                    { no: '15.1', particular: 'General loan' },
+                    { isSub: true, no: '', particular: '  1st Cycle No.', ref: '15.1.1', units: 'No.', previousMonth: 20236, increased: 209, decreased: 0, thisMonth: 20445 },
+                    { isSub: true, no: '', particular: '  1st Cycle Amt;', ref: '15.1.2', units: 'Amt;', previousMonth: 5864500000, increased: 81500000, decreased: 0, thisMonth: 5946000000 },
+                    { isSub: true, no: '', particular: '  2nd Cycle No.', ref: '15.1.3', units: 'No.', previousMonth: 12325, increased: 234, decreased: 0, thisMonth: 12559 },
+                    { isSub: true, no: '', particular: '  2nd Cycle Amt;', ref: '15.1.4', units: 'Amt;', previousMonth: 4846750000, increased: 113200000, decreased: 0, thisMonth: 4959950000 },
+                    { isSub: true, no: '', particular: '  3rd Cycle No.', ref: '15.1.5', units: 'No.', previousMonth: 5525, increased: 37, decreased: 0, thisMonth: 5562 },
+                    { isSub: true, no: '', particular: '  3rd Cycle Amt;', ref: '15.1.6', units: 'Amt;', previousMonth: 2531100000, increased: 21700000, decreased: 0, thisMonth: 2552800000 },
+                    { isSub: true, no: '', particular: '  4th Cycle No.', ref: '15.1.7', units: 'No.', previousMonth: 7240, increased: 242, decreased: 0, thisMonth: 7482 },
+                    { isSub: true, no: '', particular: '  4th Cycle Amt;', ref: '15.1.8', units: 'Amt;', previousMonth: 4652000000, increased: 186500000, decreased: 0, thisMonth: 4838500000 },
+                    { isSub: true, isTotal: true, no: '', particular: '  General loan total No.', ref: '', units: 'No.', previousMonth: 45326, increased: 722, decreased: 0, thisMonth: 46048 },
+                    { isSub: true, isTotal: true, no: '', particular: '  General loan total Amt;', ref: '', units: 'Amt;', previousMonth: 17894350000, increased: 402900000, decreased: 0, thisMonth: 18297250000 },
+                    { no: '15.2', particular: 'Extra Loans (Regular)' },
+                    { isSub: true, no: '', particular: '  No.', ref: '15.2.1', units: 'No.', previousMonth: 4693, increased: 61, decreased: 0, thisMonth: 4754 },
+                    { isSub: true, no: '', particular: '  Amt;', ref: '15.2.2', units: 'Amt;', previousMonth: 493700000, increased: 12200000, decreased: 0, thisMonth: 505900000 },
+                    { no: '15.4', particular: 'Agriculture Loans' },
+                    { isSub: true, no: '', particular: '  Individual No.', ref: '15.4.1', units: 'No.', previousMonth: 295, increased: 4, decreased: 0, thisMonth: 299 },
+                    { isSub: true, no: '', particular: '  Individual Amt;', ref: '15.4.2', units: 'Amt;', previousMonth: 267000000, increased: 5400000, decreased: 0, thisMonth: 272400000 },
+                    { isSub: true, no: '', particular: '  Group No.', ref: '15.4.3', units: 'No.', previousMonth: 405, increased: 0, decreased: 0, thisMonth: 405 },
+                    { isSub: true, no: '', particular: '  Group Amt;', ref: '15.4.4', units: 'Amt;', previousMonth: 172800000, increased: 0, decreased: 0, thisMonth: 172800000 },
+                    { isSub: true, isTotal: true, no: '', particular: '  Total Agriculture Loans No.', ref: '', units: 'No.', previousMonth: 700, increased: 4, decreased: 0, thisMonth: 704 },
+                    { isSub: true, isTotal: true, no: '', particular: '  Total Agriculture Loans Amt;', ref: '', units: 'Amt;', previousMonth: 439800000, increased: 5400000, decreased: 0, thisMonth: 445200000 },
+                    { no: '15.5', particular: 'Microenterprise Loans' },
+                    { isSub: true, no: '', particular: '  No.', ref: '15.5.1', units: 'No.', previousMonth: 653, increased: 43, decreased: 0, thisMonth: 696 },
+                    { isSub: true, no: '', particular: '  Amt;', ref: '15.5.2', units: 'Amt;', previousMonth: 542100000, increased: 42900000, decreased: 0, thisMonth: 585000000 },
+                    { no: '15.6', particular: 'Enterprise Loans' },
+                    { isSub: true, no: '', particular: '  No.', ref: '15.6.1', units: 'No.', previousMonth: 1205, increased: 53, decreased: 0, thisMonth: 1258 },
+                    { isSub: true, no: '', particular: '  Amt;', ref: '15.6.2', units: 'Amt;', previousMonth: 4102200000, increased: 234000000, decreased: 0, thisMonth: 4336200000 },
+                    { isTotal: true, no: '', particular: 'Total Disbursed No.', ref: '', units: 'No.', previousMonth: 52577, increased: 883, decreased: 0, thisMonth: 53460 },
+                    { isTotal: true, no: '', particular: 'Total Disbursed Amt;', ref: '', units: 'Amt;', previousMonth: 23472150000, increased: 697400000, decreased: 0, thisMonth: 24169550000 },
 
-                    // Saving
-                    { isHeader: true, particular: "Saving"},
-                    { no: '23', particular: 'Saving Deposit'},
-                    { isSub: true, no: '', particular: 'Compulsory', ref: '23.1.1', units: 'Amt;', previousMonth: 305894755, increased: 44333777, decreased: 0, thisMonth: 350228532 },
-                    { isSub: true, isTotal: true, no: '', particular: 'Total', ref: '', units: 'Amt;', previousMonth: 305894755, increased: 44333777, decreased: 0, thisMonth: 350228532 },
-                    { no: '24', particular: 'Saving Withdrawl'},
-                    { isSub: true, no: '', particular: 'Compulsory', ref: '24.1.1', units: 'Amt;', previousMonth: 4742643, increased: 1294220, decreased: 0, thisMonth: 6036863 },
-                    { isSub: true, isTotal: true, no: '', particular: 'Total', ref: '', units: 'Amt;', previousMonth: 4742643, increased: 1294220, decreased: 0, thisMonth: 6036863 },
-                    { no: '25', particular: 'Saving Balance'},
-                    { isSub: true, no: '', particular: 'Compulsory', ref: '25.1.1', units: 'Amt;', previousMonth: 301152112, increased: 44333777, decreased: 1294220, thisMonth: 344191669 },
-                    { isSub: true, isTotal: true, no: '', particular: 'Total', ref: '', units: 'Amt;', previousMonth: 301152112, increased: 44333777, decreased: 1294220, thisMonth: 344191669 },
+                    { isHeader: true, particular: "Loan Repayment Information" },
+                    { no: '16.1', particular: 'General loan' },
+                    { isSub: true, no: '', particular: '  1st Cycle Prin;', ref: '16.1.1', units: 'Prin;', previousMonth: 5289790402, increased: 90012921, decreased: 0, thisMonth: 5379803323 },
+                    { isSub: true, no: '', particular: '  1st Cycle Int;', ref: '16.1.2', units: 'Int;', previousMonth: 806848100, increased: 13929100, decreased: 0, thisMonth: 820777200 },
+                    { isSub: true, no: '', particular: '  2nd Cycle Prin;', ref: '16.1.3', units: 'Prin;', previousMonth: 3685021885, increased: 167253744, decreased: 0, thisMonth: 3852275629 },
+                    { isSub: true, no: '', particular: '  2nd Cycle Int;', ref: '16.1.4', units: 'Int;', previousMonth: 604227953, increased: 27306724, decreased: 0, thisMonth: 631534677 },
+                    { isSub: true, no: '', particular: '  3rd Cycle Prin;', ref: '16.1.5', units: 'Prin;', previousMonth: 2282990091, increased: 38553698, decreased: 0, thisMonth: 2321543789 },
+                    { isSub: true, no: '', particular: '  3rd Cycle Int;', ref: '16.1.6', units: 'Int;', previousMonth: 344316935, increased: 5798654, decreased: 0, thisMonth: 350115589 },
+                    { isSub: true, no: '', particular: '  4th Cycle Prin;', ref: '16.1.7', units: 'Prin;', previousMonth: 3681616246, increased: 149676000, decreased: 0, thisMonth: 3831292246 },
+                    { isSub: true, no: '', particular: '  4th Cycle Int;', ref: '16.1.8', units: 'Int;', previousMonth: 581514377, increased: 23762884, decreased: 0, thisMonth: 605277261 },
+                    { isSub: true, isTotal: true, no: '', particular: '  General loan total Prin;', ref: '', units: 'Prin;', previousMonth: 14939418624, increased: 445496363, decreased: 0, thisMonth: 15384914987 },
+                    { isSub: true, isTotal: true, no: '', particular: '  General loan total Int;', ref: '', units: 'Int;', previousMonth: 2336907365, increased: 70797362, decreased: 0, thisMonth: 2407704727 },
+                    { no: '16.2', particular: 'Extra Loans (Regular)' },
+                    { isSub: true, no: '', particular: '  Prin;', ref: '16.2.1', units: 'Prin;', previousMonth: 489226900, increased: 808074, decreased: 0, thisMonth: 490034974 },
+                    { isSub: true, no: '', particular: '  Int;', ref: '16.2.2', units: 'Int;', previousMonth: 76172030, increased: 176074, decreased: 0, thisMonth: 76348104 },
+                    { no: '16.4', particular: 'Agriculture Loans' },
+                    { isSub: true, no: '', particular: '  Total Agriculture Loans Prin;', ref: '', units: 'Prin;', previousMonth: 330700000, increased: 8900000, decreased: 0, thisMonth: 339600000 },
+                    { isSub: true, no: '', particular: '  Total Agriculture Loans Int;', ref: '', units: 'Int;', previousMonth: 44659591, increased: 2326234, decreased: 0, thisMonth: 46985825 },
+                    { no: '16.5', particular: 'Microenterprise Loans' },
+                    { isSub: true, no: '', particular: '  Prin;', ref: '16.5.1', units: 'Prin;', previousMonth: 399143206, increased: 21330760, decreased: 0, thisMonth: 420473966 },
+                    { isSub: true, no: '', particular: '  Int;', ref: '16.5.2', units: 'Int;', previousMonth: 63612464, increased: 3447637, decreased: 0, thisMonth: 67060101 },
+                    { no: '16.6', particular: 'Enterprise Loans' },
+                    { isSub: true, no: '', particular: '  Prin;', ref: '16.6.1', units: 'Prin;', previousMonth: 2770029733, increased: 158710834, decreased: 0, thisMonth: 2928740567 },
+                    { isSub: true, no: '', particular: '  Int;', ref: '16.6.2', units: 'Int;', previousMonth: 452358806, increased: 28548528, decreased: 0, thisMonth: 480907334 },
+                    { isTotal: true, no: '', particular: 'Total Repayment Prin;', ref: '', units: 'Prin;', previousMonth: 18928518463, increased: 635246031, decreased: 0, thisMonth: 19563764494 },
+                    { isTotal: true, no: '', particular: 'Total Repayment Int;', ref: '', units: 'Int;', previousMonth: 2973710256, increased: 105295835, decreased: 0, thisMonth: 3079006091 },
 
-                    // Staff Position
-                    { isHeader: true, particular: "Staff Position" },
-                    { no: '26', particular: 'Total Staff' },
-                    { isSub: true, no: '', particular: 'Male', ref: '26.1', units: '', previousMonth: 16, increased: 0, decreased: 0, thisMonth: 16 },
-                    { isSub: true, no: '', particular: 'Female', ref: '26.2', units: '', previousMonth: 5, increased: 0, decreased: 0, thisMonth: 5 },
-                    { isSub: true, isTotal: true, no: '', particular: 'Total', ref: '', units: '', previousMonth: 21, increased: 0, decreased: 0, thisMonth: 21 },
+                    { isHeader: true, particular: "Loan Portfolio Information" },
+                    { isTotal: true, no: '', particular: 'Total Portfolio No.', ref: '', units: 'No.', previousMonth: 10592, increased: 883, decreased: 697, thisMonth: 10778 },
+                    { isTotal: true, no: '', particular: 'Total Portfolio Amt;', ref: '', units: 'Amt;', previousMonth: 4543631537, increased: 697400000, decreased: 635246031, thisMonth: 4605785506 },
                     
-                    // PAR
-                    { isHeader: true, particular: "PAR" },
-                    { no: '27', particular: 'Portfolio At Risk (PAR) > 30 days', ref: '', units: '%', previousMonth: 0.05, increased: 0, decreased: 0, thisMonth: 0.05 },
-                    { no: '28', particular: 'Portfolio At Risk (PAR) > 90 days', ref: '', units: '%', previousMonth: 0.03, increased: 0, decreased: 0, thisMonth: 0.03 },
+                    { isHeader: true, particular: "Saving" },
+                    { no: '23', particular: 'Saving Deposit' },
+                    { isSub: true, no: '', particular: '  Compulsory', ref: '23.1.1', units: 'Amt;', previousMonth: 1385746062, increased: 130650101, decreased: 0, thisMonth: 1516396163 },
+                    { isSub: true, isTotal: true, no: '', particular: 'Total', ref: '', units: 'Amt;', previousMonth: 1385746062, increased: 130650101, decreased: 0, thisMonth: 1516396163 },
+                    { no: '24', particular: 'Saving Withdrawl' },
+                    { isSub: true, no: '', particular: '  Compulsory', ref: '24.1.1', units: 'Amt;', previousMonth: 512532654, increased: 11827272, decreased: 0, thisMonth: 524359926 },
+                    { isSub: true, isTotal: true, no: '', particular: 'Total', ref: '', units: 'Amt;', previousMonth: 512532654, increased: 11827272, decreased: 0, thisMonth: 524359926 },
+                    { no: '25', particular: 'Saving Balance' },
+                    { isSub: true, no: '', particular: '  Compulsory', ref: '25.1.1', units: 'Amt;', previousMonth: 873213408, increased: 130650101, decreased: 11827272, thisMonth: 992036237 },
+                    { isSub: true, isTotal: true, no: '', particular: 'Total', ref: '', units: 'Amt;', previousMonth: 873213408, increased: 130650101, decreased: 11827272, thisMonth: 992036237 },
+                    { no: '26', particular: 'Saver' },
+                    { isSub: true, no: '', particular: '  Compulsory', ref: '26.1.1', units: 'No.', previousMonth: 11144, increased: 228, decreased: 76, thisMonth: 11296 },
+                    { isSub: true, isTotal: true, no: '', particular: 'Total', ref: '', units: 'No.', previousMonth: 11144, increased: 228, decreased: 76, thisMonth: 11296 },
+
+                    { isHeader: true, particular: "Staff Information" },
+                    { no: '27.1', particular: 'Management staffs', ref: '27.1.1', units: 'No.', previousMonth: 6, increased: 1, decreased: 1, thisMonth: 6 },
+                    { no: '27.2', particular: 'Support staffs', ref: '27.2.1', units: 'No.', previousMonth: 3, increased: 0, decreased: 0, thisMonth: 3 },
+                    { no: '27.3', particular: 'Field staff ( Sr.LO )', ref: '27.3.1', units: 'No.', previousMonth: 23, increased: 2, decreased: 1, thisMonth: 24 },
+                    { no: '27.4', particular: 'Field staff ( Jr.LO / LO )', ref: '27.4.1', units: 'No.', previousMonth: 3, increased: 0, decreased: 1, thisMonth: 2 },
+                    { isTotal: true, no: '', particular: 'Total No of Staffs', ref: '', units: 'No.', previousMonth: 35, increased: 3, decreased: 3, thisMonth: 35 },
+                    
+                    { isHeader: true, particular: "Case Load Information" },
+                    { no: '28.1', particular: 'No of Active Clients Per LO', ref: '28.1.1', units: '%', previousMonth: 435.62, increased: null, decreased: null, thisMonth: 441.85 },
+                    { no: '28.2', particular: 'No of Active Borr Per LO', ref: '28.2.1', units: '%', previousMonth: 396.04, increased: null, decreased: null, thisMonth: 400.35 },
+                    { no: '28.3', particular: 'Disbursement per LO', ref: '28.3.1', units: '%', previousMonth: 23923077, increased: null, decreased: null, thisMonth: 26823077 },
+                    { no: '28.4', particular: 'Portfolio Per LO', ref: '28.4.1', units: '%', previousMonth: 174755059, increased: null, decreased: null, thisMonth: 177145596 }
                 ]
             };
             
@@ -315,16 +479,19 @@
                 
                 // Simulate an API call with a short delay
                 $timeout(function() {
-                    // In a real app, you would fetch different data based on the location.
-                    // Here, we'll just update the location title in the mock data.
-                    mockReportData.reportInfo.location = $scope.searchParams.location;
+                    // This is a placeholder. In a real application, you would make an API
+                    // call here to fetch the data for the selected location and month.
+                    const locationData = mockReportData; // Using the same data for all locations in this demo
+
+                    locationData.reportInfo.location = $scope.searchParams.location;
                     if($scope.searchParams.location === 'Mandalay Region'){
-                        mockReportData.reportInfo.locationType = "Region Name";
+                        locationData.reportInfo.locationType = "Region Name";
+                        locationData.reportInfo.location = "Mandalay";
                     } else {
-                        mockReportData.reportInfo.locationType = "Township and Branch Name";
+                        locationData.reportInfo.locationType = "Township and Branch Name";
                     }
 
-                    $scope.report = mockReportData;
+                    $scope.report = locationData;
                     console.log("Report data loaded.");
                 }, 300);
             };
@@ -339,6 +506,9 @@
                 console.log("Printing report...");
                 window.print();
             };
+            
+            // Trigger initial search on load
+            $scope.search();
         });
     </script>
 
